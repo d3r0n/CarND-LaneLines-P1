@@ -4,10 +4,15 @@
 ###1. Describe your pipeline. As part of the description, explain how you modified the draw_lines() function.
 
 My pipeline consisted of 6 steps.
+
 First, I converted the images to grayscale.
+
 Second, I use Gaussian blur to smoothen the image and reduce noise.
+
 Using Canny edge detection algorithm to find edges of objects.
+
 Fourth, I select area where most likely is the road to reduce false positives.
+
 Fifth is the most complex step. Here I detect lines.
   - I use Hough Transformation on the found points to find formulas of lines.
   If enough lines corresponding to found points crosses in Hough space it means that they are one line.
@@ -17,6 +22,7 @@ Fifth is the most complex step. Here I detect lines.
   - Since this approximation, due to shadows, flares etc., can be skewed I average the lane function (slope and intercept) with previous 50 lane functions using Weighted Moving average.
     I was inspired by Exponential Smoothening but here instead of smoothing the pixels on the image I smooth the functions. The result is more than satisfying.
   - Last in this step, by using found function definitions I paint lane highlights.
+
 Sixth step is a Exponential Smoothening on painted lane highlights using last 10 frames to reduce flicker.
 
 ###2. Identify potential shortcomings with your current pipeline
