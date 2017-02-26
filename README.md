@@ -1,4 +1,4 @@
-#**Finding Lane Lines on the Road** 
+#**Finding Lane Lines on the Road**
 [![Udacity - Self-Driving Car NanoDegree](https://s3.amazonaws.com/udacity-sdc/github/shield-carnd.svg)](http://www.udacity.com/drive)
 
 <img src="laneLines_thirdPass.jpg" width="480" alt="Combined Image" />
@@ -10,7 +10,7 @@ When we drive, we use our eyes to decide where to go.  The lines on the road tha
 
 In this project you will detect lane lines in images using Python and OpenCV.  OpenCV means "Open-Source Computer Vision", which is a package that has many useful tools for analyzing images.  
 
-To complete the project, two files will be submitted: a file containing project code and a file containing a brief write up explaining your solution. We have included template files to be used both for the [code](https://github.com/udacity/CarND-LaneLines-P1/blob/master/P1.ipynb) and the [writeup](https://github.com/udacity/CarND-LaneLines-P1/blob/master/writeup_template.md).The code file is called P1.ipynb and the writeup template is writeup_template.md 
+To complete the project, two files will be submitted: a file containing project code and a file containing a brief write up explaining your solution. We have included template files to be used both for the [code](https://github.com/udacity/CarND-LaneLines-P1/blob/master/P1.ipynb) and the [writeup](https://github.com/udacity/CarND-LaneLines-P1/blob/master/writeup_template.md).The code file is called P1.ipynb and the writeup template is writeup_template.md
 
 To meet specifications in the project, take a look at the requirements in the [project rubric](https://review.udacity.com/#!/rubrics/322/view)
 
@@ -26,7 +26,7 @@ We encourage using images in your writeup to demonstrate how your pipeline works
 
 All that said, please be concise!  We're not looking for you to write a book here: just a brief description.
 
-You're not required to use markdown for your writeup.  If you use another method please just submit a pdf of your writeup. Here is a link to a [writeup template file](https://github.com/udacity/CarND-LaneLines-P1/blob/master/writeup_template.md). 
+You're not required to use markdown for your writeup.  If you use another method please just submit a pdf of your writeup. Here is a link to a [writeup template file](https://github.com/udacity/CarND-LaneLines-P1/blob/master/writeup_template.md).
 
 
 The Project
@@ -36,7 +36,7 @@ The Project
 
 **Step 1:** Getting setup with Python
 
-To do this project, you will need Python 3 along with the numpy, matplotlib, and OpenCV libraries, as well as Jupyter Notebook installed. 
+To do this project, you will need Python 3 along with the numpy, matplotlib, and OpenCV libraries, as well as Jupyter Notebook installed.
 
 We recommend downloading and installing the Anaconda Python 3 distribution from Continuum Analytics because it comes prepackaged with many of the Python dependencies you will need for this and future projects, makes it easy to install OpenCV, and includes Jupyter Notebook.  Beyond that, it is one of the most common Python distributions used in data analytics and machine learning, so a great choice if you're getting started in the field.
 
@@ -100,3 +100,35 @@ A browser window will appear showing the contents of the current directory.  Cli
 
 **Step 5:** Complete the project and submit both the Ipython notebook and the project writeup
 
+### Reflection
+
+###1. Describe your pipeline. As part of the description, explain how you modified the draw_lines() function.
+
+My pipeline consisted of 6 steps.
+First, I converted the images to grayscale.
+Second, I use Gaussian blur to smoothen the image and reduce noise.
+Using Canny edge detection algorithm to find edges of objects.
+Fourth, I select area where most likely is the road to reduce false positives.
+Fifth is the most complex step. Here I detect lines.
+  - I use Hough Transformation on the found points to find formulas of lines.
+  If enough lines corresponding to found points crosses in Hough space it means that they are one line.
+  - I filter out the lines with too steep or too flat slope since they are false positives adding too much noise.
+  - I split set of found lines according to their slope parameter. Those with positive alpha are part of left lane line and those with alpha negative are part of right lane.
+  - In those groups I compute average slope and the intercept of found functions, giving me approximation of the lane line in current frame.
+  - Since this approximation, due to shadows, flares etc., can be skewed I average the lane function (slope and intercept) with previous 50 lane functions using Weighted Moving average.
+    I was inspired by Exponential Smoothening but here instead of smoothing the pixels on the image I smooth the functions. The result is more than satisfying.
+  - Last in this step, by using found function definitions I paint lane highlights.
+Sixth step is a Exponential Smoothening on painted lane highlights using last 10 frames to reduce flicker.
+
+###2. Identify potential shortcomings with your current pipeline
+
+My solution successfully find white lane in optional challenge but unfortunately still have a problem with yellow lane.
+
+Other shortcoming is that if the road is not in the centre of the video the code needs recalibrating. Same might happen in less sunny video.
+In rain, in snow...
+
+###3. Suggest possible improvements to your pipeline
+
+To deal with sun and shadows a possible improvement would be to use different color channel than RGB. Something like HLS or YCbCr.
+
+Another potential improvement could be to some advanced methods like DNN.
